@@ -1,5 +1,7 @@
+import { doc, updateDoc } from "firebase/firestore";
 import { type NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+import { db } from "@/lib/firebase";
 import { generateSignature, getCurrentTimestamp } from "@/lib/signature";
 
 // Interface untuk payload dari client
@@ -31,8 +33,7 @@ export async function POST(request: NextRequest) {
     const requestId = uuidv4();
     const requestTimestamp = getCurrentTimestamp();
 
-    const invoiceNumber = `${body.id}-${Date.now()}`;
-
+    const invoiceNumber = `${body.id}`;
     // Gunakan invoice number yang unik. DOKU maksimal 64 karakter.
     const jsonBody = {
       order: {
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
         line_items: body.items ?? [],
       },
       payment: {
-        payment_due_date: 60,
+        payment_due_date: 60 * 24 * 7,
         payment_method_types: ["CREDIT_CARD"],
       },
       customer: {
@@ -96,6 +97,12 @@ export async function POST(request: NextRequest) {
         { status: response.status },
       );
     }
+
+    await updateDoc(doc(db, "INVOICES", invoiceNumber), {
+      paymentUrl: responseData.response?.payment?.url,
+    });
+
+    console.log({ paymentUrl: responseData.response?.payment?.url });
 
     return NextResponse.json({
       success: true,

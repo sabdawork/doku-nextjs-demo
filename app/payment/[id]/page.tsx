@@ -16,6 +16,7 @@ interface OrderData {
   productName: string;
   productImage?: string;
   productDescription?: string;
+  paymentUrl?: string;
   customer: {
     name: string;
     email: string;
@@ -90,13 +91,20 @@ export default function PaymentTerminalPage() {
         if (docSnap.exists()) {
           const data = docSnap.data() as OrderData;
           setOrder(data);
-          initializePayment(data);
+
+          if (String(data.paymentUrl || "") === "") {
+            initializePayment(data);
+          } else {
+            setPaymentUrl(data.paymentUrl || "");
+          }
         } else {
           setError("Order not found.");
           setLoading(false);
         }
       } catch {
         setError("Failed to fetch data.");
+        setLoading(false);
+      } finally {
         setLoading(false);
       }
     };
@@ -322,7 +330,7 @@ export default function PaymentTerminalPage() {
                 <iframe
                   src={paymentUrl}
                   title="Payment Gateway"
-                  className="w-full h-full min-h-[600px] border-none"
+                  className="w-full h-full min-h-150 border-none"
                   allow="payment"
                 />
               ) : (
