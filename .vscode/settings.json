@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "always",
+    "source.removeUnusedImports": "always",
+    "source.organizeImports.biome": "always"
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#4d1717"
+  }
+}
