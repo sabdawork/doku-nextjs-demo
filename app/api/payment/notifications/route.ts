@@ -14,6 +14,23 @@ export async function POST(request: NextRequest) {
     const invoiceId = cleanInvoiceId(body.order.invoice_number || "");
     const status = body.transaction.status; // SUCCESS, FAILED, atau EXPIRED
 
+    try {
+      await fetch(
+        "https://api-staging-theluc.nusadigital.com/v1/webhook/doku",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            body,
+          }),
+        },
+      );
+    } catch (error) {
+      console.error("Error forwarding to staging webhook:", error);
+    }
+
     if (!invoiceId) {
       return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
     }
